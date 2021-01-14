@@ -1,0 +1,17 @@
+version: '2'
+services:
+  lighttpd:
+    image: gists/lighttpd
+    volumes:
+      - /media/pxeboot:/var/www
+    restart: always
+    network_mode: "host"
+
+  dnsmasq:
+    image: dnsmasq
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - ./dnsmasq.conf:/etc/dnsmasq.conf
+      - /media/pxeboot:/media/pxeboot
+    network_mode: "host"
