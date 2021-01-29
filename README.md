@@ -5,7 +5,7 @@
 Копируем конфиг dnsmasq.conf в каталог `/etc/dnsmasq.conf`
 
 Добавляем правило для доступа к сети интернет с сети 10.0.0.0/24:
-`iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -j MASQUERADE`
+`iptables -t nat -A POSTROUTING -s 10.0.0.0/24 -j MASQUERADE`
 Файл preseed, для автоматической установки Debian размешаем на web http://10.0.0.1/
 
 2. Создаем каталог для установочных файлов Debian /media/pxeboot
