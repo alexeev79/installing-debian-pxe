@@ -47,9 +47,13 @@ if [ $FOUND -eq 0 ]; then FOUND=1; DISKA=${DEVICE};                      \
 elif [ $FOUND -eq 1 ]; then FOUND=2; DISKB=${DEVICE};fi;                 \
 fi;                                                                      \
 done;                                                                    \
+echo ${DISKA} >> a.txt;                                                  \
+echo ${DISKB} >> b.txt;                                                  \
+echo ;(cat /proc/mdstat) >> raid0.txt;                                   \
 if [ "$DISKA" -ne "$DISKB" ]; then                                       \
 echo ${DISKA} >> a.txt;                                                  \
 echo ${DISKB} >> b.txt;                                                  \
+echo $(cat /proc/mdstat) >> Eraid.txt;                                   \
 fi;                                                                      \
 debconf-set partman-auto/disk "$DISKA $DISKB";                           \
 debconf-set partman-auto/method "raid";                                  \
@@ -65,13 +69,14 @@ debconf-set partman-auto/expert_recipe "multiraid ::                     \
     50000    50    -1  ext4 \$defaultignore{ } \$lvmok{ } lv_name{ home } method{ format } format{ }  use_filesystem{ }  filesystem{ ext4 }  mountpoint{ /home } .\
     10000    50    -1  ext4 \$defaultignore{ } \$lvmok{ } lv_name{ tmp }  method{ format } format{ }  use_filesystem{ }  filesystem{ ext4 }  mountpoint{ /tmp } . \
     100000   50    -1  ext4 \$defaultignore{ } \$lvmok{ } lv_name{ var }  method{ format } format{ }  use_filesystem{ }  filesystem{ xfs }  mountpoint{ /var } .";\
-. /usr/share/debconf/confmodule;                                                                                                                                  \
-db_set grub-pc/install_devices multiselect $(list-devices disk | tr -s '\r\n' ' ' | sed 's/\(\w\) /\1, /g' | sed 's/,\([^,]*\)$/ \1/');                           \
-. /usr/share/debconf/confmodule;                                                                                                                                  \
-db_set grub-installer/bootdev $(list-devices disk | tr -s '\r\n' ' ');                                                                                            \
-. /usr/share/debconf/confmodule;                                                                                                                                  \
+. /usr/share/debconf/confmodule;                                                              \
+db_set grub-pc/install_devices multiselect $DISKA, $DISKB;                                    \
+#$(list-devices disk | tr -s '\r\n' ' ' | sed 's/\(\w\) /\1, /g' | sed 's/,\([^,]*\)$/ \1/')  installing for all disk; \
+. /usr/share/debconf/confmodule;                                                              \
+db_set grub-installer/bootdev "$DISKA $DISKB";                                                \
+#$(list-devices disk | tr -s '\r\n' ' ')                                                      installing for all disk; \
+. /usr/share/debconf/confmodule;                                                              \
 db_fset grub-installer/bootdev seen true;
-
 d-i mdadm/boot_degraded boolean true
 d-i partman/mount_style select label
 d-i partman-basicfilesystems/no_swap boolean false
